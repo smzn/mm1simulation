@@ -14,7 +14,7 @@ public class MMSimulation_lib {
 		this.time = time;
 		this.rho = lambda / mu;
 	}
-
+	
 	public double getSimulation() { //イベントドリブン型
 		double arrival = this.getExponential(lambda);
 		double service = arrival + this.getExponential(mu);
