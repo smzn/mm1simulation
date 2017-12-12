@@ -37,11 +37,11 @@ public class MMSimulation_lib {
 				total_queue += queue * arrival;
 				if( queue > 0 ) total_queuelength += ( queue - 1 ) * arrival; //待ち人数のみ
 				else if ( queue == 0 ) total_queuelength += queue * arrival;
-				eventtime.add(elapse);
 				event.add("arrival");
 				queuelength.add(queue);
 				queue++;
 				elapse += arrival;
+				eventtime.add(elapse); //経過時間の登録はイベント後
 				service -= arrival;
 				arrival = this.getExponential(lambda);
 			}
@@ -49,11 +49,11 @@ public class MMSimulation_lib {
 				total_queue += queue * service;
 				if( queue > 0 ) total_queuelength += ( queue - 1 ) * service;
 				else if ( queue == 0 ) total_queuelength += queue * service;
-				eventtime.add(elapse);
 				event.add("departure");
 				queuelength.add(queue);
 				queue--;
 				elapse += service;
+				eventtime.add(elapse); //経過時間の登録はイベント後
 				arrival -= service;
 				if( queue == 0) //queueが0なら到着後サービス
 					service = arrival + this.getExponential(mu);
@@ -66,13 +66,34 @@ public class MMSimulation_lib {
 		return result;
 	}
 	
-	public void getEvaluation() {
+	public double[] getEvaluation() {
 		int maxLength = 0;
+		double result[] = new double[2]; //平均系内時間、最大待ち行列の長さ
 		for(int i = 0; i < eventtime.size(); i++) {
-			System.out.println("Eventtime : "+eventtime.get(i)+" Event : "+ event.get(i)+" Queuelength : "+queuelength.get(i));
+			//System.out.println("Eventtime : "+eventtime.get(i)+" Event : "+ event.get(i)+" Queuelength : "+queuelength.get(i));
 			if( maxLength < queuelength.get(i) ) maxLength = queuelength.get(i);
 		}
-		System.out.println("MaxQueueLength = "+maxLength);
+		int arrival_number = 0, departure_number = 0, arrival_index = 0, departure_index = 0;
+		double systemtime = 0;
+		for(int i = 0; i < eventtime.size(); i++) { //同じ客の到着と退去を探す
+			if(event.get(i) == "arrival") {
+				arrival_number++;
+				arrival_index = i;
+				for(int j = departure_index + 1; j < eventtime.size(); j++) {
+					if(event.get(j) == "departure") {
+						departure_number++;
+					}
+					if( arrival_number == departure_number) {
+						departure_index = j;
+						systemtime += eventtime.get(departure_index) - eventtime.get(arrival_index);
+						break;
+					}
+				}
+			}
+		}
+		result[0] = systemtime / departure_number;
+		result[1] = maxLength;
+		return result;
 	}
 	
 	//指数乱数発生
@@ -84,7 +105,7 @@ public class MMSimulation_lib {
 		return rho / ( 1- rho );
 	}
 	
-	public double getW() { //平均平内時間
+	public double getW() { //平均系内時間
 		return 1 / ( 1- rho ) / mu;
 	}
 	
