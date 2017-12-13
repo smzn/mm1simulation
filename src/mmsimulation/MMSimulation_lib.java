@@ -68,13 +68,13 @@ public class MMSimulation_lib {
 	
 	public double[] getEvaluation() {
 		int maxLength = 0;
-		double result[] = new double[2]; //平均系内時間、最大待ち行列の長さ
+		double result[] = new double[3]; //平均系内時間、系内時間分散、最大待ち行列の長さ
 		for(int i = 0; i < eventtime.size(); i++) {
 			//System.out.println("Eventtime : "+eventtime.get(i)+" Event : "+ event.get(i)+" Queuelength : "+queuelength.get(i));
 			if( maxLength < queuelength.get(i) ) maxLength = queuelength.get(i);
 		}
 		int arrival_number = 0, departure_number = 0, arrival_index = 0, departure_index = 0;
-		double systemtime = 0;
+		double systemtime = 0, systemtime2 = 0;
 		for(int i = 0; i < eventtime.size(); i++) { //同じ客の到着と退去を探す
 			if(event.get(i) == "arrival") {
 				arrival_number++;
@@ -86,13 +86,15 @@ public class MMSimulation_lib {
 					if( arrival_number == departure_number) {
 						departure_index = j;
 						systemtime += eventtime.get(departure_index) - eventtime.get(arrival_index);
+						systemtime2 += Math.pow(eventtime.get(departure_index) - eventtime.get(arrival_index),2);
 						break;
 					}
 				}
 			}
 		}
 		result[0] = systemtime / departure_number;
-		result[1] = maxLength;
+		result[1] = systemtime2 / departure_number - Math.pow((systemtime / departure_number),2);
+		result[2] = maxLength;
 		return result;
 	}
 	
@@ -124,7 +126,7 @@ public class MMSimulation_lib {
 		return Math.pow(rho, 2) * ( 1 + rho - Math.pow(rho, 2)) / Math.pow( 1 - rho , 2);
 	}
 	public double getVW() { //系内時間分散
-		return 1 / ( mu * ( 1 - rho ));
+		return 1 / ( Math.pow(mu * ( 1 - rho ),2));
 	}
 	public double getVWq() { //待ち時間分散
 		return ( 2 * rho - Math.pow(rho, 2)) / Math.pow( mu * ( 1 - rho ), 2);

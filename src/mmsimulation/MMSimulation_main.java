@@ -18,7 +18,7 @@ public class MMSimulation_main {
 		
 		MMSimulation_lib msim = new MMSimulation_lib(lambda, mu, time);
 		System.out.println("Simulation : (系内人数,待ち人数) = "+Arrays.toString(msim.getSimulation()));
-		System.out.println("Simulation : (系内時間,最大待ち人数) = "+Arrays.toString(msim.getEvaluation()));
+		System.out.println("Simulation : (系内時間,系内時間分散,最大待ち人数) = "+Arrays.toString(msim.getEvaluation()));
 		System.out.println("Solution : 系内人数 = "+msim.getL());
 		System.out.println("Solution : 系内時間 = "+msim.getW());
 		System.out.println("Solution : 待ち人数 = "+msim.getQ());
