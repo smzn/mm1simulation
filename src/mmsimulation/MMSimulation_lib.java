@@ -12,6 +12,7 @@ public class MMSimulation_lib {
 	ArrayList<String> event;
 	ArrayList<Integer> queuelength;
 	private double eventrate[][];
+	private double timerate[];
 	
 	public MMSimulation_lib(double lambda, double mu, int time) {
 		this.lambda = lambda;
@@ -21,8 +22,8 @@ public class MMSimulation_lib {
 		eventtime = new ArrayList<Double>();
 		event = new ArrayList<String>();
 		queuelength = new ArrayList<Integer>();
+		timerate = new double[100];
 	}
-	
 	
 	public double[] getSimulation() { //イベントドリブン型
 		double arrival = this.getExponential(lambda);
@@ -39,6 +40,7 @@ public class MMSimulation_lib {
 				else if ( queue == 0 ) total_queuelength += queue * arrival;
 				event.add("arrival");
 				queuelength.add(queue);
+				timerate[queue] += arrival;
 				queue++;
 				elapse += arrival;
 				eventtime.add(elapse); //経過時間の登録はイベント後
@@ -51,6 +53,7 @@ public class MMSimulation_lib {
 				else if ( queue == 0 ) total_queuelength += queue * service;
 				event.add("departure");
 				queuelength.add(queue);
+				timerate[queue] += service;
 				queue--;
 				elapse += service;
 				eventtime.add(elapse); //経過時間の登録はイベント後
@@ -101,6 +104,12 @@ public class MMSimulation_lib {
 	//指数乱数発生
 	public double getExponential(double param) {
 		return - Math.log(1 - rnd.nextDouble()) / param;
+	}
+
+	public double[] getTimerate() {
+		for(int i = 0; i< timerate.length; i++) timerate[i] /= time ;
+		for(int i = 0; i< timerate.length; i++) timerate[i] *= 100 ;
+		return timerate;
 	}
 
 	public double getL() { //平均系内人数
